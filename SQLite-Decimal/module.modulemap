@@ -1,0 +1,4 @@
+module SQLite_Decimal {
+    header "sqlite3.h"
+    export *
+}

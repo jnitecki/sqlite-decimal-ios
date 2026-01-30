@@ -1,0 +1,143 @@
+name: Package iOS lib as XCFramework
+
+permissions:
+  contents:
+    write
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:  # also allow manual runs
+    inputs:
+      SQLITE_VERSION:
+        type: string
+        description: "SQLite version to use"
+        required: false
+        default: ""
+
+jobs:
+  build_framework:
+    name: Build Framework
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+
+      - name: Install xcpretty
+        run: gem install xcpretty
+
+      - name: Test library
+        run: |
+          ( \
+          set -o pipefail; \
+          xcodebuild test \
+            -project sqlite-ios-decimal.xcodeproj \
+            -scheme SQLite-Decimal \
+            -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=26.2" \
+            -archivePath "./build/SQLite-Decimal-iphoneos.archive" \
+            OTHER_CFLAGS="-fembed-bitcode" \
+            SYMROOT="./build" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual \
+            SQLITE_VERSION="${{ github.event.inputs.SQLITE_VERSION }}" \
+            | tee ${{ github.workspace }}/build_iphoneos.log
+          )
+
+      - name: Get SQLite version
+        id: sqlite_version
+        run: |
+            SQLITE_VERSION=$(grep -Eo "SQLITE_VERSION=[0-9]+\\.[0-9]+\\.[0-9]+" ${{ github.workspace }}/build_iphoneos.log \
+              | grep -Eo "[0-9]+\\.[0-9]+\\.[0-9]+" \
+              | head -n1)
+            echo "SQLITE_VERSION=$SQLITE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create archive for devices (iphoneos)
+        run: |
+          xcodebuild archive \
+            -project sqlite-ios-decimal.xcodeproj \
+            -scheme SQLite-Decimal \
+            -destination "generic/platform=iOS" \
+            -archivePath "./build/SQLite-Decimal-iphoneos" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual \
+            SQLITE_VERSION="${{ steps.sqlite_version.outputs.SQLITE_VERSION }}"
+
+      - name: Create archive for simulator (iphonesimulator)
+        run: |
+          xcodebuild archive \
+            -project sqlite-ios-decimal.xcodeproj \
+            -scheme SQLite-Decimal \
+            -configuration Release \
+            -destination "generic/platform=iOS Simulator" \
+            -archivePath "./build/SQLite-Decimal-iphonesimulator" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual \
+            SQLITE_VERSION="${{ steps.sqlite_version.outputs.SQLITE_VERSION }}"
+
+      - name: Create XCFramework (device + simulator)
+        run: |
+          xcodebuild -create-xcframework \
+            -framework ./build/SQLite-Decimal-iphoneos.xcarchive/Products/Library/Frameworks/SQLite_Decimal.framework \
+            -framework ./build/SQLite-Decimal-iphonesimulator.xcarchive/Products/Library/Frameworks/SQLite_Decimal.framework \
+            -output ./build/SQLite_Decimal.xcframework
+
+      - name: Package XCFramework
+        run: |
+          mkdir artifacts
+          cd build
+          zip -r ../artifacts/SQLite_Decimal.xcframework.zip SQLite_Decimal.xcframework
+
+      - name: Compute checksum
+        id: compute_checksum
+        run: |
+          echo "CHECKSUM=$(swift package compute-checksum artifacts/SQLite_Decimal.xcframework.zip)" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: SQLite-Decimal-xcframework
+          path: artifacts/SQLite_Decimal.xcframework.zip
+
+      - name: Create GitHub release
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            ./artifacts/SQLite_Decimal.xcframework.zip
+          tag_name: ${{ steps.sqlite_version.outputs.SQLITE_VERSION }}
+          name: Release ${{ steps.sqlite_version.outputs.SQLITE_VERSION }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update SPM Repository
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'
+        run: |
+          # Clone the SPM repo
+          git clone https://jnitecki:${GITHUB_TOKEN}@github.com/jnitecki/sqlite-decimal-spm.git
+          cd sqlite-decimal-spm
+          
+          sed -i '' "s|releases/download/.*/SQLite_Decimal.xcframework.zip|releases/download/${{ steps.sqlite_version.outputs.SQLITE_VERSION }}/SQLite_Decimal.xcframework.zip|" Package.swift
+          sed -i '' "s|checksum: \".*\"|checksum: \"${{ steps.compute_checksum.outputs.CHECKSUM }}\"|" Package.swift
+
+          # Commit and push
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add Package.swift
+          git commit -m "Update to version ${{ steps.sqlite_version.outputs.SQLITE_VERSION }}"
+          git tag ${{ steps.sqlite_version.outputs.SQLITE_VERSION }}
+          echo "Push 1"
+          git push
+          echo "Push 2"
+          git push --tags
+          echo "Push 3"
