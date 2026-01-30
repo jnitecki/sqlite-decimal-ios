@@ -1,0 +1,141 @@
+set -e
+
+OUTPUT_DIR="$1"
+HEADER_DIR="$2"
+PATCH_DIR="$3"
+
+# ─────────────────────────────────────────────────────────────────────
+# Get the release year of a given SQLite version
+# ─────────────────────────────────────────────────────────────────────
+# Usage:  year=$(get_sqlite_year "3.42.0")
+get_sqlite_year() {
+    local version="$1"
+    local url="https://www.sqlite.org/changes.html"
+        
+    # Grab the page (quiet, no progress)
+    local text
+    if ! text=$(curl -LsSf "$url"); then
+        echo "❌  Failed to download $url" >&2
+        return 1
+    fi
+                                        
+    # Escape dots in the version so we can use it inside a regex
+    local esc_ver
+    esc_ver=$(printf '%s' "$version" | sed 's/\./\\./g')
+                                                    
+    # Find the first line that contains the version in the expected format
+    # Example line: 2023-05-01  (3.42.0)
+    local line
+    line=$(printf '%s' "$text" |
+        grep -Eo "([0-9]{4})-[0-9]{2}-[0-9]{2}[ ]+\\([ ]*${esc_ver}[ ]*\\)" |
+        head -n1)
+                                                                                          
+    if [[ -z $line ]]; then
+        echo "❌  Cannot find release year for SQLite version $version" >&2
+        return 1
+    fi
+                                                                                                                  
+    # Extract the year (first 4 chars of the matched line)
+    echo "${line:0:4}"
+}
+    
+# ─────────────────────────────────────────────────────────────────────
+# Convert a SQLite version string into the “code” used in the
+#    amalgamation ZIP file name
+# ─────────────────────────────────────────────────────────────────────
+# Usage:  code=$(sqlite_version_to_code "3.42.0")
+sqlite_version_to_code() {
+    local version="$1"
+    IFS='.' read -r major minor patch <<< "$version"
+        
+    # Pad minor and patch to two digits, then append “00”
+    printf "%d%02d%02d00" "$major" "$minor" "$patch"
+}
+
+# ─────────────────────────────────────────────────────────────────────
+# Construct the full download URL for a given SQLite version
+# ─────────────────────────────────────────────────────────────────────
+# Usage:  url=$(sqlite_amalgamation_url "3.42.0")
+sqlite_amalgamation_url() {
+    local version="$1"
+    
+    local code
+    code=$(sqlite_version_to_code "$version") || return 1
+            
+    local year
+    year=$(get_sqlite_year "$version") || return 1
+                    
+    echo "https://sqlite.org/${year}/sqlite-amalgamation-${code}.zip"
+}
+
+# ─────────────────────────────────────────────────────────────────────
+# Get latest version of SQLite
+# ─────────────────────────────────────────────────────────────────────
+sqlite_last_version() {
+    local url="https://www.sqlite.org/"
+        
+    # Grab the page (quiet, no progress)
+    local text
+    if ! text=$(curl -s "$url"); then
+        echo "❌  Failed to download $url" >&2
+        return 1
+    fi
+
+    # Find the first line that contains the version in the expected format
+    # Example line: Version: 3.42.0 (2023-05-01)
+    local line
+    line=$(printf '%s' "$text" |
+        grep -Eo "Version[ ]+[0-9]+\\.[0-9]+\\.[0-9+][ ]*(</a>)?[ ]*\\([ ]*[0-9]{4}-[0-9]{2}-[0-9]{2}[ ]*\\)" |
+        grep -Eo "[0-9]+\\.[0-9]+\\.[0-9+]"
+        head -n1)
+        
+    echo $line
+}
+
+# If SQLITE_VERSION is not provided use the latest
+if [ -z "$SQLITE_VERSION" ]; then
+    SQLITE_VERSION=$(sqlite_last_version)
+fi
+echo "SQLITE_VERSION=$SQLITE_VERSION"
+
+# Get download url
+DOWNLOAD_URL=$(sqlite_amalgamation_url $SQLITE_VERSION)
+
+# Download (follow redirects with -L)
+curl -LsSf -o "$TMPDIR/SQLite.zip" "$DOWNLOAD_URL" || { echo "❌  curl failed" >&2; exit 1; }
+
+# Unzip needed files
+echo "🔧  Unzipping into $OUTPUT_DIR ..."
+unzip -q -j -o "$TMPDIR/SQLite.zip" -d "$OUTPUT_DIR" '*/sqlite3.c' '*/sqlite3ext.h' || { echo "❌  unzip failed" >&2; exit 1; }
+unzip -q -j -o "$TMPDIR/SQLite.zip" -d "$HEADER_DIR" '*/sqlite3.h' || { echo "❌  unzip failed" >&2; exit 1; }
+echo "SQLITE_HEADERS=\"$HEADER_DIR\""
+
+# Apply patches
+if [ -n "$PATCH_DIR" ]; then
+    echo "Applying patches"
+    for patch_file in "$PATCH_DIR"/*.patch; do
+        PATCH_PATH="$(pwd -P)/$patch_file"
+        echo "Patch file: $PATCH_PATH"
+        
+        # Try a reverse “check” – this just verifies that the patch can be reversed
+        if (cd "$OUTPUT_DIR" && git apply -p7 --ignore-space-change --check --reverse --quiet "$PATCH_PATH"); then
+            echo "✔ Reverse check succeeded – skipping normal apply."
+        else
+            echo "✘ Reverse check failed – attempting normal apply..."
+
+            # Normal apply, verbose for diagnostics
+            if ! (cd "$OUTPUT_DIR" && git apply -p7 --ignore-space-change "$PATCH_PATH"); then
+                echo "✗ Normal apply failed – aborting." >&2
+                exit 1
+            else
+                echo "✔ Normal apply succeeded."
+            fi
+        fi
+    done
+fi
+
+touch "$HEADER_DIR"/*
+
+echo "Date:    $(date +"%Y-%m-%d %H:%M:%S")" > /tmp/build.log
+echo "Headers: $HEADER_DIR" >> /tmp/build.log
+echo "Sources: $OUTPUT_DIR" >> /tmp/build.log

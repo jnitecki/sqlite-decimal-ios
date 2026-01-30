@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "F0A02189-F2B1-4E47-B2F7-408149B22B9D",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:sqlite-decimal-ios.xcodeproj",
+        "identifier" : "87C95DBC2FADFD0A00B8D4A8",
+        "name" : "SQLite-Public-Tests"
+      }
+    }
+  ],
+  "version" : 1
+}

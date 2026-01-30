@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "368D8314-5112-4F41-8BC2-32C8770745EC",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:sqlite-decimal-ios.xcodeproj",
+        "identifier" : "8714F25C2F3364350025C08C",
+        "name" : "SQLite-Static-Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:sqlite-decimal-ios.xcodeproj",
+        "identifier" : "87916C032F9F38AA00A76384",
+        "name" : "SQLite-Framework-Tests"
+      }
+    }
+  ],
+  "version" : 1
+}

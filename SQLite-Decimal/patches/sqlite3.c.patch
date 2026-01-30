@@ -1,0 +1,19 @@
+diff --git a/sqlite-android/sqlite-android/src/main/jni/sqlite/sqlite3.c "b/sqlite-android/sqlite-android/src/main/jni/sqlite/sqlite3.c"
+index 6e6dc8a..95ee12a 100644
+--- a/sqlite-android/sqlite-android/src/main/jni/sqlite/sqlite3.c
++++ "b/sqlite-android/sqlite-android/src/main/jni/sqlite/sqlite3.c"
+@@ -22549,11 +22549,13 @@ static const char * const sqlite3azCompileOpt[] = {
+   "WIN32_MALLOC",
+ #endif
+ #ifdef SQLITE_ZERO_MALLOC
+   "ZERO_MALLOC",
+ #endif
+-
++#ifdef SQLITE_ENABLE_DECIMAL
++  "ENABLE_DECIMAL",
++#endif
+ } ;
+ 
+ SQLITE_PRIVATE const char **sqlite3CompileOptions(int *pnOpt){
+   *pnOpt = sizeof(sqlite3azCompileOpt) / sizeof(sqlite3azCompileOpt[0]);
+   return (const char**)sqlite3azCompileOpt;
