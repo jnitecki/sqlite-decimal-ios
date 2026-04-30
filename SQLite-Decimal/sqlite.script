@@ -1,5 +1,8 @@
+set -e
+
 OUTPUT_DIR="$1"
-PATCH_DIR="$2"
+HEADER_DIR="$2"
+PATCH_DIR="$3"
 
 # ─────────────────────────────────────────────────────────────────────
 # Get the release year of a given SQLite version
@@ -104,8 +107,8 @@ curl -LsSf -o "$TMPDIR/SQLite.zip" "$DOWNLOAD_URL" || { echo "❌  curl failed" 
 # Unzip needed files
 echo "🔧  Unzipping into $OUTPUT_DIR ..."
 unzip -q -j -o "$TMPDIR/SQLite.zip" -d "$OUTPUT_DIR" '*/sqlite3.c' '*/sqlite3ext.h' || { echo "❌  unzip failed" >&2; exit 1; }
-unzip -q -j -o "$TMPDIR/SQLite.zip" -d "$OUTPUT_DIR/Headers" '*/sqlite3.h' || { echo "❌  unzip failed" >&2; exit 1; }
-echo "SQLITE_HEADERS=\"$OUTPUT_DIR/Headers\""
+unzip -q -j -o "$TMPDIR/SQLite.zip" -d "$HEADER_DIR" '*/sqlite3.h' || { echo "❌  unzip failed" >&2; exit 1; }
+echo "SQLITE_HEADERS=\"$HEADER_DIR\""
 
 # Apply patches
 if [ -n "$PATCH_DIR" ]; then
@@ -130,3 +133,9 @@ if [ -n "$PATCH_DIR" ]; then
         fi
     done
 fi
+
+touch "$HEADER_DIR"/*
+
+echo "Date:    $(date +"%Y-%m-%d %H:%M:%S")" > /tmp/build.log
+echo "Headers: $HEADER_DIR" >> /tmp/build.log
+echo "Sources: $OUTPUT_DIR" >> /tmp/build.log

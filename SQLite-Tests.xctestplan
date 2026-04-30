@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:sqlite-ios-decimal.xcodeproj",
+        "identifier" : "8714F25C2F3364350025C08C",
+        "name" : "SQLite-Static-Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:sqlite-ios-decimal.xcodeproj",
+        "identifier" : "87916C032F9F38AA00A76384",
+        "name" : "SQLite-Framework-Tests"
+      }
+    }
+  ],
+  "version" : 1
+}

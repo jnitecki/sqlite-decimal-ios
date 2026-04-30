@@ -1,5 +1,4 @@
-**/*.xcodeproj/xcuserdata
-**/*.xcodeproj/project.xcworkspace/xcuserdata
-**/SQLite-Decimal/sqlite3.c
-**/SQLite-Decimal/sqlite3.h
-build
+**/.DS_Store
+**/*.xcodeproj/xcuserdata/
+**/*.xcodeproj/project.xcworkspace/xcuserdata/
+build/

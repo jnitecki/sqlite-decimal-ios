@@ -54,7 +54,7 @@ jobs:
             SQLITE_HEADERS=$(grep -Eo "SQLITE_HEADERS=.*" ${{ github.workspace }}/build_iphoneos.log \
               | head -n1 \
               | sed -E -e 's/^SQLITE_HEADERS[[:space:]]*=[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"//' -e 's/"$//')
-            cp SQLite-Decimal/module.modulemap "$SQLITE_HEADERS"
+            cp ${{ github.workspace }}/SQLite-Decimal/module.modulemap "$SQLITE_HEADERS"
             echo "SQLITE_HEADERS=$SQLITE_HEADERS" >> $GITHUB_OUTPUT            
 
       - name: Build for simulator (iphonesimulator)
