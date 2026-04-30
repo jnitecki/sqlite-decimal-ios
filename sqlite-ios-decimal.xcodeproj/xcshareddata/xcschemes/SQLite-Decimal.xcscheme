@@ -30,7 +30,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "87916BE42F9F22FD00A76384"
-               BuildableName = "SQLite-Decimal.framework"
+               BuildableName = "SQLite_Decimal.framework"
                BlueprintName = "SQLite-Framework"
                ReferencedContainer = "container:sqlite-ios-decimal.xcodeproj">
             </BuildableReference>
@@ -38,8 +38,8 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
             buildForAnalyzing = "NO">
             <TestPlanReference
                reference = "container:SQLite-Tests.xctestplan">
@@ -48,9 +48,9 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "87916C032F9F38AA00A76384"
@@ -62,9 +62,9 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8714F25C2F3364350025C08C"
@@ -108,7 +108,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "87916BE42F9F22FD00A76384"
-            BuildableName = "SQLite-Decimal.framework"
+            BuildableName = "SQLite_Decimal.framework"
             BlueprintName = "SQLite-Framework"
             ReferencedContainer = "container:sqlite-ios-decimal.xcodeproj">
          </BuildableReference>

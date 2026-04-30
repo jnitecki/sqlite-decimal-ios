@@ -36,6 +36,7 @@ final class SQLite_Tests: XCTestCase {
         var optionNumber = 0
         var options: [String] = []
 
+        
         while true {
             let sql = "SELECT sqlite_compileoption_get(\(optionNumber));"
             var stmt: OpaquePointer?
@@ -176,16 +177,6 @@ final class SQLite_Tests: XCTestCase {
     }
     
     func openDatabase() -> OpaquePointer? {
-        let fileManager = FileManager.default
-        let documentsURL = try! fileManager.url(
-            for: .documentDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: false
-        )
-
-        let dbURL = documentsURL.appendingPathComponent("app.db")
-        //let database = dbURL.path()
         let database = ":memory"
 
         var db: OpaquePointer?

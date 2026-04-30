@@ -24,6 +24,7 @@
 			outputFiles = (
 				"$(DERIVED_FILE_DIR)/Sqlite/${INPUT_FILE_BASE}",
 			);
+			runOncePerArchitecture = 0;
 			script = "OUTPUT_DIR=\"${DERIVED_FILE_DIR}/SQLite\"\nOUTPUT_FILE=\"${OUTPUT_DIR}/${INPUT_FILE_BASE}\"\n\n# 1. Ensure the subdirectory exists\nmkdir -p \"$OUTPUT_DIR\"\n\n# 2. Read the url from the file\nDOWNLOAD_URL=`cat ${INPUT_FILE_PATH}`\n\ncurl -LsSf -o $OUTPUT_FILE $DOWNLOAD_URL\n\n# 3. Optional: Print the result for debugging\necho \"Downloaded file written to: $OUTPUT_FILE\"\n";
 		};
 		87D8E47C2F2E895A00F386CB /* PBXBuildRule */ = {
@@ -41,6 +42,7 @@
 				"${SHARED_DERIVED_FILE_DIR}/SQLite/Headers/sqlite3.h",
 				"${DERIVED_FILE_DIR}/SQLite/sqlite3ext.h",
 			);
+			runOncePerArchitecture = 0;
 			script = "OUTPUT_DIR=\"${DERIVED_FILE_DIR}/SQLite\"\nHEADER_DIR=\"${SHARED_DERIVED_FILE_DIR}/SQLite/Headers\"\n\n# 1. Ensure the subdirectory exists\nmkdir -p \"$OUTPUT_DIR\" \n\n# 2. Execute script\n. ${INPUT_FILE_PATH} \"$OUTPUT_DIR\" \"${HEADER_DIR}\" \"SQLite-Decimal/patches\"\n";
 		};
 /* End PBXBuildRule section */
@@ -68,18 +70,6 @@
 			remoteInfo = "SQLite-Framework";
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		87FE67032F2C98850068268A /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "include/$(PRODUCT_NAME)";
-			dstSubfolderSpec = 16;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		870993492FA387F6000FB271 /* SQLite-Decimal.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SQLite-Decimal.xctestplan"; sourceTree = SOURCE_ROOT; };
@@ -164,13 +154,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87FE67022F2C98850068268A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -223,13 +206,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87FE67152F2C995F0068268A /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -239,7 +215,6 @@
 			buildPhases = (
 				8714F2592F3364350025C08C /* Sources */,
 				8714F25A2F3364350025C08C /* Frameworks */,
-				8714F25B2F3364350025C08C /* Resources */,
 			);
 			buildRules = (
 			);
@@ -264,7 +239,6 @@
 				87916BE12F9F22FD00A76384 /* Sources */,
 				87916C112FA0A07200A76384 /* Run Script */,
 				87916BE22F9F22FD00A76384 /* Frameworks */,
-				87916BE32F9F22FD00A76384 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -287,7 +261,6 @@
 			buildPhases = (
 				87916C002F9F38AA00A76384 /* Sources */,
 				87916C012F9F38AA00A76384 /* Frameworks */,
-				87916C022F9F38AA00A76384 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -308,10 +281,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 87FE670F2F2C98850068268A /* Build configuration list for PBXNativeTarget "SQLite-Decimal" */;
 			buildPhases = (
-				87FE67152F2C995F0068268A /* Headers */,
 				87FE67012F2C98850068268A /* Sources */,
-				87FE67022F2C98850068268A /* Frameworks */,
-				87FE67032F2C98850068268A /* CopyFiles */,
 			);
 			buildRules = (
 				87D8E47C2F2E895A00F386CB /* PBXBuildRule */,
@@ -375,30 +345,6 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXResourcesBuildPhase section */
-		8714F25B2F3364350025C08C /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		87916BE32F9F22FD00A76384 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		87916C022F9F38AA00A76384 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
 /* Begin PBXShellScriptBuildPhase section */
 		87916C112FA0A07200A76384 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -414,11 +360,11 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).framework/Headers/sqlite3.h",
+				"$(TARGET_BUILD_DIR)/$(PRODUCT_NAME).framework/Headers/sqlite3.h",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\n# Path where SQLite-Decimal target downloaded the header\nDOWNLOADED_HEADER=\"${SHARED_DERIVED_FILE_DIR}/SQLite/Headers/sqlite3.h\"\n\n# Framework Headers destination\nFRAMEWORK_HEADERS=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Headers\"\n\n# Create Headers dir if needed\nmkdir -p \"$FRAMEWORK_HEADERS\"\n\n# Check if file can be read\ncat \"$DOWNLOADED_HEADER\" > /dev/null\n\necho \"✅ Build products dir: ${BUILT_PRODUCTS_DIR}\"\n\n# Check if destination can be written\ntouch \"$FRAMEWORK_HEADERS/sqlite3.h\"\n\n# Copy downloaded header into framework bundle\ncp \"$DOWNLOADED_HEADER\" \"$FRAMEWORK_HEADERS/sqlite3.h\"\n\necho \"✅ Copied sqlite3.h to framework Headers\"\n";
+			shellScript = "set -e\n\n# Since the BUILT_PRODUCTS_DIR is symbolic link we are using TARGET_BUILD_DIR\n# because both are supposed to point to the same directory\n[ \"$(realpath ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework)\" = \"${TARGET_BUILD_DIR}/${PRODUCT_NAME}.framework\" ];\n\n# Path where SQLite-Decimal target downloaded the header\nDOWNLOADED_HEADER=\"${SHARED_DERIVED_FILE_DIR}/SQLite/Headers/sqlite3.h\"\n\n# Framework Headers destination\nFRAMEWORK_HEADERS=\"$(realpath ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework)/Headers\"\n\n# Create Headers dir if needed\nmkdir -p \"$FRAMEWORK_HEADERS\"\n\n# Check if file can be read\ncat \"$DOWNLOADED_HEADER\" > /dev/null\n\n# Check if destination can be written\ntouch \"${FRAMEWORK_HEADERS}/sqlite3.h\"\n\n# Copy downloaded header into framework bundle\ncp \"${DOWNLOADED_HEADER}\" \"${FRAMEWORK_HEADERS}/sqlite3.h\"\n\necho \"✅ Copied sqlite3.h to framework Headers ${FRAMEWORK_HEADERS}\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -561,7 +507,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tbss.commons.ios.sqlite.SQLite-Framework";
 				PRODUCT_NAME = SQLite_Decimal;
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				SQLITE_VERSION = 3.53.0;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -605,7 +551,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tbss.commons.ios.sqlite.SQLite-Framework";
 				PRODUCT_NAME = SQLite_Decimal;
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				SQLITE_VERSION = 3.53.0;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -861,7 +807,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				SQLITE_VERSION = 3.53.0;
 				SWIFT_ENABLE_EXPLICIT_MODULES = "";
 				"SWIFT_ENABLE_EXPLICIT_MODULES[arch=*]" = "";
@@ -885,7 +831,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				SQLITE_VERSION = 3.53.0;
 				SWIFT_ENABLE_EXPLICIT_MODULES = "";
 				TARGETED_DEVICE_FAMILY = "1,2";

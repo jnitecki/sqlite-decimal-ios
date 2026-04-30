@@ -1,5 +1,9 @@
 name: Package iOS lib as XCFramework
 
+permissions:
+  contents:
+    write
+
 on:
   push:
     tags:
@@ -13,11 +17,12 @@ on:
         default: ""
 
 jobs:
-  package:
+  build_framework:
+    name: Build Framework
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Xcode version
         run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
@@ -25,20 +30,24 @@ jobs:
       - name: Install xcpretty
         run: gem install xcpretty
 
-      - name: Build for devices (iphoneos)
+      - name: Test library
         run: |
-          xcodebuild -project sqlite-ios-decimal.xcodeproj \
-            -scheme sqlite-ios-decimal \
-            -configuration Release \
-            -destination "generic/platform=iOS" \
-            -archivePath "$PWD/build/ios" \
-            BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+          ( \
+          set -o pipefail; \
+          xcodebuild test \
+            -project sqlite-ios-decimal.xcodeproj \
+            -scheme SQLite-Decimal \
+            -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=26.2" \
+            -archivePath "./build/SQLite-Decimal-iphoneos.archive" \
             OTHER_CFLAGS="-fembed-bitcode" \
-            SYMROOT="build" \
-            ARCHS="arm64" \
-            ONLY_ACTIVE_ARCH=NO \
+            SYMROOT="./build" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual \
             SQLITE_VERSION="${{ github.event.inputs.SQLITE_VERSION }}" \
             | tee ${{ github.workspace }}/build_iphoneos.log
+          )
 
       - name: Get SQLite version
         id: sqlite_version
@@ -48,52 +57,75 @@ jobs:
               | head -n1)
             echo "SQLITE_VERSION=$SQLITE_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Get SQLite headers directory and copy module.modulemap there
-        id: sqlite_headers
+      - name: Create archive for devices (iphoneos)
         run: |
-            SQLITE_HEADERS=$(grep -Eo "SQLITE_HEADERS=.*" ${{ github.workspace }}/build_iphoneos.log \
-              | head -n1 \
-              | sed -E -e 's/^SQLITE_HEADERS[[:space:]]*=[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"//' -e 's/"$//')
-            cp ${{ github.workspace }}/SQLite-Decimal/module.modulemap "$SQLITE_HEADERS"
-            echo "SQLITE_HEADERS=$SQLITE_HEADERS" >> $GITHUB_OUTPUT            
+          xcodebuild archive \
+            -project sqlite-ios-decimal.xcodeproj \
+            -scheme SQLite-Decimal \
+            -destination "generic/platform=iOS" \
+            -archivePath "./build/SQLite-Decimal-iphoneos" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual \
+            SQLITE_VERSION="${{ steps.sqlite_version.outputs.SQLITE_VERSION }}"
 
-      - name: Build for simulator (iphonesimulator)
+      - name: Create archive for simulator (iphonesimulator)
         run: |
-          xcodebuild -project sqlite-ios-decimal.xcodeproj \
-            -scheme sqlite-ios-decimal \
+          xcodebuild archive \
+            -project sqlite-ios-decimal.xcodeproj \
+            -scheme SQLite-Decimal \
             -configuration Release \
             -destination "generic/platform=iOS Simulator" \
-            -archivePath "$PWD/build/ios-sim" \
-            BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
-            SYMROOT="build" \
-            ARCHS="arm64 x86_64" \
-            ONLY_ACTIVE_ARCH=NO \
-            SQLITE_VERSION='${{ steps.sqlite_version.outputs.SQLITE_VERSION }}'
+            -archivePath "./build/SQLite-Decimal-iphonesimulator" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual \
+            SQLITE_VERSION="${{ steps.sqlite_version.outputs.SQLITE_VERSION }}"
 
       - name: Create XCFramework (device + simulator)
         run: |
-          xcrun xcodebuild -create-xcframework \
-            -library build/Release-iphoneos/libsqlite-ios-decimal.a \
-            -headers ${{ steps.sqlite_headers.outputs.SQLITE_HEADERS }} \
-            -library build/Release-iphonesimulator/libsqlite-ios-decimal.a \
-            -headers ${{ steps.sqlite_headers.outputs.SQLITE_HEADERS }} \
-            -output sqlite-ios-decimal.xcframework
+          xcodebuild -create-xcframework \
+            -framework ./build/SQLite-Decimal-iphoneos.xcarchive/Products/Library/Frameworks/SQLite_Decimal.framework \
+            -framework ./build/SQLite-Decimal-iphonesimulator.xcarchive/Products/Library/Frameworks/SQLite_Decimal.framework \
+            -output ./build/sqlite-ios-decimal.xcframework
 
       - name: Package XCFramework
         run: |
-          mkdir -p artifacts
-          zip -r artifacts/sqlite-ios-decimal.xcframework.zip sqlite-ios-decimal.xcframework
+          mkdir artifacts
+          cd build
+          zip -r ../artifacts/sqlite-ios-decimal.xcframework.zip sqlite-ios-decimal.xcframework
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SQLite-Decimal-xcframework
           path: artifacts/sqlite-ios-decimal.xcframework.zip
 
       - name: Create GitHub Release (optional)
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/master'
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.ref_name }}
           name: SQLite Decimal ${{ github.ref_name }}
           artifacts: artifacts/sqlite-ios-decimal.xcframework.zip
+
+      - name: Create Git tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          git tag ${{ steps.sqlite_version.outputs.SQLITE_VERSION }}
+          git push origin ${{ steps.sqlite_version.outputs.SQLITE_VERSION }}
+
+      - name: Create GitHub release
+        if: github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            ./artifacts/sqlite-ios-decimal.xcframework.zip
+          tag_name: ${{ steps.sqlite_version.outputs.SQLITE_VERSION }}
+          name: Release ${{ steps.sqlite_version.outputs.SQLITE_VERSION }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
