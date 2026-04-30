@@ -9,7 +9,7 @@
 #define SQLite_Decimal_h
 
 #import <Foundation/Foundation.h>
-#import <sqlite3.h>
+#import <SQLite_Decimal/sqlite3.h>
 
 //! Project version number for SQLite_Framework.
 FOUNDATION_EXPORT double SQLite_FrameworkVersionNumber;

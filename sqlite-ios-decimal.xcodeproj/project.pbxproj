@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		87916BCD2F9E6BB000A76384 /* libSQLite-Decimal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 87FE67052F2C98850068268A /* libSQLite-Decimal.a */; };
 		87916BFD2F9F2CFD00A76384 /* libSQLite-Decimal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 87FE67052F2C98850068268A /* libSQLite-Decimal.a */; };
-		87916C082F9F38AA00A76384 /* SQLite-Decimal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87916BE52F9F22FD00A76384 /* SQLite-Decimal.framework */; };
+		87916C082F9F38AA00A76384 /* SQLite_Decimal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87916BE52F9F22FD00A76384 /* SQLite_Decimal.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -82,8 +82,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		870993492FA387F6000FB271 /* SQLite-Decimal.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SQLite-Decimal.xctestplan"; sourceTree = SOURCE_ROOT; };
 		8714F25D2F3364350025C08C /* SQLite-Static-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SQLite-Static-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		87916BE52F9F22FD00A76384 /* SQLite-Decimal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "SQLite-Decimal.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		87916BE52F9F22FD00A76384 /* SQLite_Decimal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SQLite_Decimal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		87916C042F9F38AA00A76384 /* SQLite-Framework-Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SQLite-Framework-Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		87FE67052F2C98850068268A /* libSQLite-Decimal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSQLite-Decimal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -159,7 +160,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87916C082F9F38AA00A76384 /* SQLite-Decimal.framework in Frameworks */,
+				87916C082F9F38AA00A76384 /* SQLite_Decimal.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,6 +184,7 @@
 		87916C0E2F9F3A7200A76384 /* SQLite-Tests */ = {
 			isa = PBXGroup;
 			children = (
+				870993492FA387F6000FB271 /* SQLite-Decimal.xctestplan */,
 				87916C052F9F38AA00A76384 /* SQLite-Framework-Tests */,
 				8714F25E2F3364350025C08C /* SQLite-Static-Tests */,
 			);
@@ -205,7 +207,7 @@
 			children = (
 				87FE67052F2C98850068268A /* libSQLite-Decimal.a */,
 				8714F25D2F3364350025C08C /* SQLite-Static-Tests.xctest */,
-				87916BE52F9F22FD00A76384 /* SQLite-Decimal.framework */,
+				87916BE52F9F22FD00A76384 /* SQLite_Decimal.framework */,
 				87916C042F9F38AA00A76384 /* SQLite-Framework-Tests.xctest */,
 			);
 			name = Products;
@@ -259,8 +261,8 @@
 			buildConfigurationList = 87916BF52F9F22FD00A76384 /* Build configuration list for PBXNativeTarget "SQLite-Framework" */;
 			buildPhases = (
 				87916BE02F9F22FD00A76384 /* Headers */,
-				87916C112FA0A07200A76384 /* Run Script */,
 				87916BE12F9F22FD00A76384 /* Sources */,
+				87916C112FA0A07200A76384 /* Run Script */,
 				87916BE22F9F22FD00A76384 /* Frameworks */,
 				87916BE32F9F22FD00A76384 /* Resources */,
 			);
@@ -276,7 +278,7 @@
 			packageProductDependencies = (
 			);
 			productName = "SQLite-Framework";
-			productReference = 87916BE52F9F22FD00A76384 /* SQLite-Decimal.framework */;
+			productReference = 87916BE52F9F22FD00A76384 /* SQLite_Decimal.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		87916C032F9F38AA00A76384 /* SQLite-Framework-Tests */ = {
@@ -416,7 +418,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\n# Path where SQLite-Decimal target downloaded the header\nDOWNLOADED_HEADER=\"${SHARED_DERIVED_FILE_DIR}/SQLite/Headers/sqlite3.h\"\n\n# Framework Headers destination\nFRAMEWORK_HEADERS=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Headers\"\n\n# Create Headers dir if needed\nmkdir -p \"$FRAMEWORK_HEADERS\"\n\n# Copy downloaded header into framework bundle\ncp \"$DOWNLOADED_HEADER\" \"$FRAMEWORK_HEADERS/sqlite3.h\"\n\necho \"✅ Copied sqlite3.h to framework Headers\"\n";
+			shellScript = "set -e\n\n# Path where SQLite-Decimal target downloaded the header\nDOWNLOADED_HEADER=\"${SHARED_DERIVED_FILE_DIR}/SQLite/Headers/sqlite3.h\"\n\n# Framework Headers destination\nFRAMEWORK_HEADERS=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Headers\"\n\n# Create Headers dir if needed\nmkdir -p \"$FRAMEWORK_HEADERS\"\n\n# Check if file can be read\ncat \"$DOWNLOADED_HEADER\" > /dev/null\n\necho \"✅ Build products dir: ${BUILT_PRODUCTS_DIR}\"\n\n# Check if destination can be written\ntouch \"$FRAMEWORK_HEADERS/sqlite3.h\"\n\n# Copy downloaded header into framework bundle\ncp \"$DOWNLOADED_HEADER\" \"$FRAMEWORK_HEADERS/sqlite3.h\"\n\necho \"✅ Copied sqlite3.h to framework Headers\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -550,6 +552,7 @@
 				);
 				MACH_O_TYPE = mh_dylib;
 				MARKETING_VERSION = 1.0;
+				MODULEMAP_FILE = "$(SRCROOT)/SQLite-Framework/module.modulemap";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = (
@@ -557,7 +560,7 @@
 					"$(BUILT_PRODUCTS_DIR)/libSQLite-Decimal.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tbss.commons.ios.sqlite.SQLite-Framework";
-				PRODUCT_NAME = "SQLite-Decimal";
+				PRODUCT_NAME = SQLite_Decimal;
 				SKIP_INSTALL = YES;
 				SQLITE_VERSION = 3.53.0;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -593,6 +596,7 @@
 				);
 				MACH_O_TYPE = mh_dylib;
 				MARKETING_VERSION = 1.0;
+				MODULEMAP_FILE = "$(SRCROOT)/SQLite-Framework/module.modulemap";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_LDFLAGS = (
@@ -600,7 +604,7 @@
 					"$(BUILT_PRODUCTS_DIR)/libSQLite-Decimal.a",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tbss.commons.ios.sqlite.SQLite-Framework";
-				PRODUCT_NAME = "SQLite-Decimal";
+				PRODUCT_NAME = SQLite_Decimal;
 				SKIP_INSTALL = YES;
 				SQLITE_VERSION = 3.53.0;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -627,6 +631,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-v";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tbss.commons.ios.sqlite.SQLite-Framework-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SQLITE_VERSION = 3.53.0;
@@ -652,6 +657,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-v";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tbss.commons.ios.sqlite.SQLite-Framework-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SQLITE_VERSION = 3.53.0;
@@ -749,9 +755,8 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
-				SQLITE_VERSION = 3.51.2;
 			};
 			name = Debug;
 		};
@@ -837,7 +842,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
-				SQLITE_VERSION = 3.51.2;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

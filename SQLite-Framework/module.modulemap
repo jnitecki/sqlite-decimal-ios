@@ -1,0 +1,8 @@
+framework module SQLite_Decimal {
+  umbrella header "SQLite_Decimal.h"
+  textual header "sqlite3.h"
+  
+  export *
+
+  module * { export * }
+}
